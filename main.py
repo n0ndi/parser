@@ -14,13 +14,11 @@ def check_for_redirect(response):
 
 
 
-def parse_book_page(page_content):
-
+def parse_book_page(page_content, id):
     soup = page_content
     title = soup.find('h1').text
-    #sanitize_filename(title)
     img_url = soup.find("div", class_="bookimage").find("img")["src"]
-    img_url = urljoin("https://tululu.org",img_url)
+    img_url = urljoin(f"https://tululu.org/b{id}", img_url)
     comments = soup.find("div", id="content").find_all("span", class_="black")
     comments_txt = [comment.text for comment in comments]
     genre = soup.find("span", class_="d_book").text
@@ -63,6 +61,9 @@ def download_text_book(title, id, genre):
 
 
 def main():
+    os.makedirs("books", exist_ok=True)
+    os.makedirs("img", exist_ok=True)
+    os.makedirs("comments", exist_ok=True)
     parser = argparse.ArgumentParser(
         description='Скачиват данные книги'
     )
@@ -71,18 +72,18 @@ def main():
     args = parser.parse_args()
     start_book = args.start_num
     end_book = args.end_num
-    for id in range(start_book, end_book):
+    for book_id in range(start_book, end_book):
         while True:
             try:
-                url = f'https://tululu.org/b{id}/'
+                url = f'https://tululu.org/b{book_id}/'
                 response = requests.get(url)
                 response.raise_for_status()
                 check_for_redirect(response)
 
                 page_content = BeautifulSoup(response.text, 'lxml')
-                book = parse_book_page(page_content)
-                download_text_book(book["title"], id, book["genre"])
-                download_book_img(book["title"], id, book["img_url"])
+                book = parse_book_page(page_content, book_id)
+                download_text_book(book["title"], book_id, book["genre"])
+                download_book_img(book["title"], book_id, book["img_url"])
                 break
             except requests.exceptions.HTTPError:
                 logging.warning("Было перенаправление")
@@ -94,7 +95,4 @@ def main():
 
 
 if __name__=="__main__":
-    os.makedirs("books", exist_ok=True)
-    os.makedirs("img", exist_ok=True)
-    os.makedirs("comments", exist_ok=True)
     main()
