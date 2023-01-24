@@ -6,6 +6,9 @@ from pathvalidate import sanitize_filename
 from urllib.parse import urlparse, urljoin
 import argparse
 from time import sleep
+import json
+
+
 
 
 def check_for_redirect(response):
@@ -16,12 +19,12 @@ def check_for_redirect(response):
 
 def parse_book_page(page_content, id):
     soup = page_content
-    title = soup.find('h1').text
-    img_url = soup.find("div", class_="bookimage").find("img")["src"]
+    title = soup.select_one("h1").text
+    img_url = soup.select_one("div.bookimage img")["src"]
     img_url = urljoin(f"https://tululu.org/b{id}", img_url)
-    comments = soup.find("div", id="content").find_all("span", class_="black")
+    comments = soup.select("div.content span.black")
     comments_txt = [comment.text for comment in comments]
-    genre = soup.find("span", class_="d_book").text
+    genre = soup.select_one("span.d_book").text
     genre = sanitize_filename(genre)
 
 
@@ -39,15 +42,18 @@ def parse_book_page(page_content, id):
     return book
 
 
-def download_book_img(title, id, img_url):
+def download_book_img(dest_folder, title, id, img_url):
     img_response = requests.get(img_url)
     img_response.raise_for_status()
     check_for_redirect(img_response)
-    with open(f"img/{id}.{title}.jpg", 'wb') as file:
+    dir_path = os.path.join(dest_folder, "img")
+    file_name = sanitize_filename(f"{id}.{title}.jpg")
+    file_path = os.path.join(dir_path, file_name)
+    with open(file_path, 'wb') as file:
         file.write(img_response.content)
+    return file_path
 
-
-def download_text_book(title, id, genre):
+def download_text_book(dest_folder, title, id, genre):
     payload ={
         "id": id
     }
@@ -55,9 +61,23 @@ def download_text_book(title, id, genre):
     response = requests.get(url, params=payload)
     response.raise_for_status()
     check_for_redirect(response)
-    with open(f"books/{id}.{title} {genre}.txt", 'wb') as file:
+    dir_path = os.path.join(dest_folder, "books")
+    file_name = sanitize_filename(f"{id}.{title} {genre}.txt")
+    file_path = os.path.join(dir_path, file_name)
+    with open(file_path, 'wb') as file:
         file.write(response.content)
+    return file_path
 
+def collect_book_json(id, title, author, genre, img_path, txt_path):
+    book = {
+        "id": id,
+        "title": title,
+        "author": author,
+        "genre": genre,
+        "img_path": img_path,
+        "txt_path": txt_path
+    }
+    return book
 
 
 def main():
