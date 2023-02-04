@@ -24,8 +24,8 @@ def parse_book_page(page_content, id):
     img_url = urljoin(f"https://tululu.org/b{id}", img_url)
     comments = soup.select("div.content span.black")
     comments_txt = [comment.text for comment in comments]
-    genre = soup.select_one("span.d_book").text
-    genre = sanitize_filename(genre)
+    genres = soup.select_one("span.d_book").text
+    genres = sanitize_filename(genres)
 
 
     title, author = title.split("::")
@@ -34,7 +34,7 @@ def parse_book_page(page_content, id):
     book = {
         "title": title.strip(),
         "author": author.strip(),
-        "genre": genre,
+        "genres": genres,
         "img_url": img_url
     }
 
@@ -53,7 +53,7 @@ def download_book_img(dest_folder, title, id, img_url):
         file.write(img_response.content)
     return file_path
 
-def download_text_book(dest_folder, title, id, genre):
+def download_text_book(dest_folder, title, id, genres):
     payload ={
         "id": id
     }
@@ -62,22 +62,11 @@ def download_text_book(dest_folder, title, id, genre):
     response.raise_for_status()
     check_for_redirect(response)
     dir_path = os.path.join(dest_folder, "books")
-    file_name = sanitize_filename(f"{id}.{title} {genre}.txt")
+    file_name = sanitize_filename(f"{id}.{title} {genres}.txt")
     file_path = os.path.join(dir_path, file_name)
     with open(file_path, 'wb') as file:
         file.write(response.content)
     return file_path
-
-def collect_book_json(id, title, author, genre, img_path, txt_path):
-    book = {
-        "id": id,
-        "title": title,
-        "author": author,
-        "genre": genre,
-        "img_path": img_path,
-        "txt_path": txt_path
-    }
-    return book
 
 
 def main():
@@ -102,7 +91,7 @@ def main():
 
                 page_content = BeautifulSoup(response.text, 'lxml')
                 book = parse_book_page(page_content, book_id)
-                download_text_book(book["title"], book_id, book["genre"])
+                download_text_book(book["title"], book_id, book["genres"])
                 download_book_img(book["title"], book_id, book["img_url"])
                 break
             except requests.exceptions.HTTPError:

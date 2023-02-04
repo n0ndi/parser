@@ -55,14 +55,14 @@ def main():
             book_id = urlparse(book_url).path.replace("b", "").replace("/", "")
             book = parse_book_page(soup, book_id)
             if not skip_txt:
-                txt_path = download_text_book(dest_folder, book["title"], book_id, book["genre"])
+                txt_path = download_text_book(dest_folder, book["title"], book_id, book["genres"])
             if not skip_imgs:
                 img_path = download_book_img(dest_folder, book["title"], book_id, book["img_url"])
             book_params = {
                 "id": book_id,
                 "title": book["title"],
                 "author": book["author"],
-                "genre":  book["genre"],
+                "genres":  book["genres"],
                 "img_path": img_path,
                 "txt_path": txt_path
             }
