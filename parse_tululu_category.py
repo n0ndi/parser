@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 
+
 def parse_book_category(start_page, end_page):
     books_ids = []
     for page in range(start_page, end_page):
@@ -21,6 +22,7 @@ def parse_book_category(start_page, end_page):
             number_book = book["href"]
             books_ids.append(urljoin("https://tululu.org", number_book))
     return books_ids
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -56,13 +58,21 @@ def main():
                 txt_path = download_text_book(dest_folder, book["title"], book_id, book["genre"])
             if not skip_imgs:
                 img_path = download_book_img(dest_folder, book["title"], book_id, book["img_url"])
-            book_params = collect_book_json(book_id, book["title"], book["author"], book["genre"], img_path, txt_path)
+            book_params = {
+                "id": book_id,
+                "title": book["title"],
+                "author": book["author"],
+                "genre":  book["genre"],
+                "img_path": img_path,
+                "txt_path": txt_path
+            }
             books.append(book_params)
         except requests.exceptions.HTTPError:
             logging.warning("Было перенаправление")
     json_path = os.path.join(json_path, "books_info")
     with open(json_path, 'w') as file:
         json.dump(books, file, ensure_ascii=False)
+
 
 if __name__=="__main__":
     main()
