@@ -6,6 +6,7 @@ import logging
 import argparse
 import json
 import os
+import time
 
 
 def parse_book_category(start_page, end_page):
@@ -14,6 +15,7 @@ def parse_book_category(start_page, end_page):
         url = f'https://tululu.org/l55/{page}/'
         response = requests.get(url)
         response.raise_for_status()
+        check_for_redirect
 
         page_content = BeautifulSoup(response.text, 'lxml')
         soup = page_content
@@ -45,30 +47,37 @@ def main():
     os.makedirs(os.path.join(dest_folder, "books"), exist_ok=True)
     os.makedirs(os.path.join(dest_folder, "img"), exist_ok=True)
     for book_url in parse_book_category(start_page, end_page):
-        img_path = ""
-        txt_path = ""
-        try:
-            response = requests.get(book_url)
-            response.raise_for_status()
-            page_content = BeautifulSoup(response.text, 'lxml')
-            soup = page_content
-            book_id = urlparse(book_url).path.replace("b", "").replace("/", "")
-            book = parse_book_page(soup, book_id)
-            if not skip_txt:
-                txt_path = download_text_book(dest_folder, book["title"], book_id, book["genres"])
-            if not skip_imgs:
-                img_path = download_book_img(dest_folder, book["title"], book_id, book["img_url"])
-            book_params = {
-                "id": book_id,
-                "title": book["title"],
-                "author": book["author"],
-                "genres":  book["genres"],
-                "img_path": img_path,
-                "txt_path": txt_path
-            }
-            books.append(book_params)
-        except requests.exceptions.HTTPError:
-            logging.warning("Было перенаправление")
+        while True:
+            img_path = ""
+            txt_path = ""
+            try:
+                response = requests.get(book_url)
+                response.raise_for_status()
+                check_for_redirect
+                page_content = BeautifulSoup(response.text, 'lxml')
+                soup = page_content
+                book_id = urlparse(book_url).path.replace("b", "").replace("/", "")
+                book = parse_book_page(soup, book_id)
+                if not skip_txt:
+                    txt_path = download_text_book(dest_folder, book["title"], book_id, book["genres"])
+                if not skip_imgs:
+                    img_path = download_book_img(dest_folder, book["title"], book_id, book["img_url"])
+                book_params = {
+                    "id": book_id,
+                    "title": book["title"],
+                    "author": book["author"],
+                    "genres":  book["genres"],
+                    "img_path": img_path,
+                    "txt_path": txt_path
+                }
+                books.append(book_params)
+                break
+            except requests.exceptions.HTTPError:
+                logging.warning("Было перенаправление")
+                break
+            except requests.exceptions.ConnectionError:
+                logging.warning("Ошибка соединения")
+                time.sleep(5)
     json_path = os.path.join(json_path, "books_info")
     with open(json_path, 'w') as file:
         json.dump(books, file, ensure_ascii=False)
