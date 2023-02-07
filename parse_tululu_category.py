@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urlparse, urljoin
-from main import parse_book_page, download_book_img, download_text_book, check_for_redirect, collect_book_json
+from main import parse_book_page, download_book_img, download_text_book, check_for_redirect
 import logging
 import argparse
 import json
@@ -10,20 +10,29 @@ import time
 
 
 def parse_book_category(start_page, end_page):
-    books_ids = []
+    books_urls = []
     for page in range(start_page, end_page):
-        url = f'https://tululu.org/l55/{page}/'
-        response = requests.get(url)
-        response.raise_for_status()
-        check_for_redirect
+        while True:
+            try:
+                url = f'https://tululu.org/l55/{page}/'
+                response = requests.get(url)
+                response.raise_for_status()
+                check_for_redirect(response)
+                break
+            except requests.exceptions.HTTPError:
+                logging.warning("Было перенаправление")
+                break
+            except requests.exceptions.ConnectionError:
+                logging.warning("Ошибка соединения")
+                time.sleep(5)
 
         page_content = BeautifulSoup(response.text, 'lxml')
         soup = page_content
         books = soup.select('div.bookimage a')
         for book in books:
             number_book = book["href"]
-            books_ids.append(urljoin("https://tululu.org", number_book))
-    return books_ids
+            books_urls.append(urljoin("https://tululu.org", number_book))
+    return books_urls
 
 
 def main():
@@ -53,7 +62,7 @@ def main():
             try:
                 response = requests.get(book_url)
                 response.raise_for_status()
-                check_for_redirect
+                check_for_redirect(response)
                 page_content = BeautifulSoup(response.text, 'lxml')
                 soup = page_content
                 book_id = urlparse(book_url).path.replace("b", "").replace("/", "")
