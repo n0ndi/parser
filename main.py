@@ -24,8 +24,9 @@ def parse_book_page(page_content, id):
     img_url = urljoin(f"https://tululu.org/b{id}", img_url)
     comments = soup.select("div.content span.black")
     comments_txt = [comment.text for comment in comments]
-    genres = soup.select_one("span.d_book").text
-    genres = sanitize_filename(genres)
+    genres = soup.select("span.d_book a")
+    genres = [ genre.text for genre in genres]
+    print(genres)
 
 
     title, author = title.split("::")

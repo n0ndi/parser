@@ -76,8 +76,8 @@ def main():
                     "title": book["title"],
                     "author": book["author"],
                     "genres":  book["genres"],
-                    "img_path": img_path,
-                    "txt_path": txt_path
+                    "img_path": img_path.replace("\\", "/"),
+                    "txt_path": txt_path.replace("\\", "/")
                 }
                 books.append(book_params)
                 break
@@ -87,7 +87,7 @@ def main():
             except requests.exceptions.ConnectionError:
                 logging.warning("Ошибка соединения")
                 time.sleep(5)
-    json_path = os.path.join(json_path, "books_info")
+    json_path = os.path.join(json_path, "books_info.json")
     with open(json_path, 'w') as file:
         json.dump(books, file, ensure_ascii=False)
 
