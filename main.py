@@ -26,7 +26,6 @@ def parse_book_page(page_content, id):
     comments_txt = [comment.text for comment in comments]
     genres = soup.select("span.d_book a")
     genres = [ genre.text for genre in genres]
-    print(genres)
 
 
     title, author = title.split("::")

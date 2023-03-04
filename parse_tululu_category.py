@@ -53,8 +53,8 @@ def main():
     skip_txt = args.skip_txt
     json_path = args.json_path
     books = []
-    os.makedirs(os.path.join(dest_folder, "books"), exist_ok=True)
-    os.makedirs(os.path.join(dest_folder, "img"), exist_ok=True)
+    os.makedirs(os.path.join(dest_folder, "media/books"), exist_ok=True)
+    os.makedirs(os.path.join(dest_folder, "media/img"), exist_ok=True)
     for book_url in parse_book_category(start_page, end_page):
         while True:
             img_path = ""
@@ -68,9 +68,9 @@ def main():
                 book_id = urlparse(book_url).path.replace("b", "").replace("/", "")
                 book = parse_book_page(soup, book_id)
                 if not skip_txt:
-                    txt_path = download_text_book(dest_folder, book["title"], book_id, book["genres"])
+                    txt_path = download_text_book(os.path.join(dest_folder, "media"), book["title"], book_id, book["genres"])
                 if not skip_imgs:
-                    img_path = download_book_img(dest_folder, book["title"], book_id, book["img_url"])
+                    img_path = download_book_img(os.path.join(dest_folder, "media"), book["title"], book_id, book["img_url"])
                 book_params = {
                     "id": book_id,
                     "title": book["title"],
