@@ -1,9 +1,14 @@
-from livereload import Server, shell
+from livereload import Server
 
 from render_pages import render_pages
 
-from livereload import Server, shell
 
-server = Server()
-server.watch('template.html', render_pages)
-server.serve(root='.')
+def main():
+    render_pages()
+    server = Server()
+    server.watch('template.html', render_pages)
+    server.serve(root='.')
+
+
+if __name__ == "__main__":
+    main()
