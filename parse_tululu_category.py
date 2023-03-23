@@ -52,7 +52,7 @@ def main():
     skip_imgs = args.skip_imgs
     skip_txt = args.skip_txt
     json_path = args.json_path
-    books = []
+    all_books_info = []
     os.makedirs(os.path.join(dest_folder, "media/books"), exist_ok=True)
     os.makedirs(os.path.join(dest_folder, "media/img"), exist_ok=True)
     for book_url in parse_book_category(start_page, end_page):
@@ -79,7 +79,7 @@ def main():
                     "img_path": img_path.replace("\\", "/"),
                     "txt_path": txt_path.replace("\\", "/")
                 }
-                books.append(book_params)
+                all_books_info.append(book_params)
                 break
             except requests.exceptions.HTTPError:
                 logging.warning("Было перенаправление")
@@ -89,7 +89,7 @@ def main():
                 time.sleep(5)
     json_path = os.path.join(json_path, "books_info.json")
     with open(json_path, 'w') as file:
-        json.dump(books, file, ensure_ascii=False)
+        json.dump(all_books_info, file, ensure_ascii=False)
 
 
 if __name__ == "__main__":
