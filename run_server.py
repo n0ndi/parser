@@ -6,7 +6,7 @@ from render_pages import render_pages
 def main():
     render_pages()
     server = Server()
-    server.watch('template.html', render_pages)
+    server.watch("template.html", render_pages)
     server.serve(root='.')
 
 

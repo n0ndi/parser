@@ -14,7 +14,7 @@ def parse_book_category(start_page, end_page):
     for page in range(start_page, end_page):
         while True:
             try:
-                url = f'https://tululu.org/l55/{page}/'
+                url = f"https://tululu.org/l55/{page}/"
                 response = requests.get(url)
                 response.raise_for_status()
                 check_for_redirect(response)
@@ -26,9 +26,9 @@ def parse_book_category(start_page, end_page):
                 logging.warning("Ошибка соединения")
                 time.sleep(5)
 
-        page_content = BeautifulSoup(response.text, 'lxml')
+        page_content = BeautifulSoup(response.text, "lxml")
         soup = page_content
-        books = soup.select('div.bookimage a')
+        books = soup.select("div.bookimage a")
         for book in books:
             number_book = book["href"]
             books_urls.append(urljoin("https://tululu.org", number_book))
@@ -39,12 +39,12 @@ def main():
     parser = argparse.ArgumentParser(
         description='Скачиват данные книги'
     )
-    parser.add_argument('--start_page', type=int, help='С какой страницы', default=1)
-    parser.add_argument('--end_page', type=int, help='До какой страницы', default=10)
-    parser.add_argument('--dest_folder', type=str, help='Путь до каталого', default="")
-    parser.add_argument('--skip_imgs', help="не скачивать картинки", action='store_true')
-    parser.add_argument('--skip_txt', help="не скачивать текст", action='store_true')
-    parser.add_argument('--json_path', help="путь скачки json файла", default='')
+    parser.add_argument("--start_page", type=int, help="С какой страницы", default=1)
+    parser.add_argument("--end_page", type=int, help="До какой страницы", default=10)
+    parser.add_argument("--dest_folder", type=str, help="Путь до каталого", default="")
+    parser.add_argument("--skip_imgs", help="не скачивать картинки", action="store_true")
+    parser.add_argument("--skip_txt", help="не скачивать текст", action="store_true")
+    parser.add_argument("--json_path", help="путь скачки json файла", default="")
     args = parser.parse_args()
     start_page = args.start_page
     end_page = args.end_page
@@ -88,7 +88,7 @@ def main():
                 logging.warning("Ошибка соединения")
                 time.sleep(5)
     json_path = os.path.join(json_path, "books_info.json")
-    with open(json_path, 'w') as file:
+    with open(json_path, "w") as file:
         json.dump(all_books_info, file, ensure_ascii=False)
 
 

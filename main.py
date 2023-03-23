@@ -3,18 +3,15 @@ from bs4 import BeautifulSoup
 import requests
 import os
 from pathvalidate import sanitize_filename
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 import argparse
 from time import sleep
-import json
-
 
 
 
 def check_for_redirect(response):
     if response.history:
         raise requests.exceptions.HTTPError
-
 
 
 def parse_book_page(page_content, id):
@@ -25,20 +22,14 @@ def parse_book_page(page_content, id):
     comments = soup.select("div.content span.black")
     comments_txt = [comment.text for comment in comments]
     genres = soup.select("span.d_book a")
-    genres = [ genre.text for genre in genres]
-
-
+    genres = [genre.text for genre in genres]
     title, author = title.split("::")
-
-
     book = {
         "title": title.strip(),
         "author": author.strip(),
         "genres": genres,
         "img_url": img_url
     }
-
-
     return book
 
 
@@ -49,9 +40,10 @@ def download_book_img(dest_folder, title, id, img_url):
     dir_path = os.path.join(dest_folder, "img")
     file_name = sanitize_filename(f"{id}.{title}.jpg")
     file_path = os.path.join(dir_path, file_name)
-    with open(file_path, 'wb') as file:
+    with open(file_path, "wb") as file:
         file.write(img_response.content)
     return file_path
+
 
 def download_text_book(dest_folder, title, id, genres):
     payload ={
@@ -74,22 +66,22 @@ def main():
     os.makedirs("img", exist_ok=True)
     os.makedirs("comments", exist_ok=True)
     parser = argparse.ArgumentParser(
-        description='Скачиват данные книги'
+        description="Скачиват данные книги"
     )
-    parser.add_argument('--start_num', type=int, help='С какой книги', default=1)
-    parser.add_argument('--end_num', type=int, help='До какой книги', default=10)
+    parser.add_argument("--start_num", type=int, help="С какой книги", default=1)
+    parser.add_argument("--end_num", type=int, help="До какой книги", default=10)
     args = parser.parse_args()
     start_book = args.start_num
     end_book = args.end_num
     for book_id in range(start_book, end_book):
         while True:
             try:
-                url = f'https://tululu.org/b{book_id}/'
+                url = f"https://tululu.org/b{book_id}/"
                 response = requests.get(url)
                 response.raise_for_status()
                 check_for_redirect(response)
 
-                page_content = BeautifulSoup(response.text, 'lxml')
+                page_content = BeautifulSoup(response.text, "lxml")
                 book = parse_book_page(page_content, book_id)
                 download_text_book(book["title"], book_id, book["genres"])
                 download_book_img(book["title"], book_id, book["img_url"])
@@ -102,6 +94,5 @@ def main():
                 sleep(5)
 
 
-
-if __name__=="__main__":
+if __name__== "__main__":
     main()
