@@ -7,7 +7,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../static/bootstrap.min.css" >
-
+    <link rel="shortcut icon" href="../static/favicon.ico" type="image/png">
 
     <title>Hello, world!</title>
   </head>
@@ -36,10 +36,9 @@
       </nav>
     </div>
     <div class="container">
-      {% for books_pair in books%}
         <div class="row">
-          {% for book in books_pair %}
-            <div class="col">
+          {% for book in books%}
+            <div class="col-sm-6">
               <div class="card mb-3" style="max-width: 540px;">
                 <div class="row no-gutters">
                   <div class="col-md-4">
@@ -60,7 +59,6 @@
             </div>
           {% endfor %}
         </div>
-      {% endfor %}
     </div>>
 
 

@@ -20,12 +20,11 @@ def render_pages():
 
     with open(json_path, "r") as file:
         books = json.load(file)
-    books = chunked(books, 2)
-    pages = list(chunked(books, 10))
-    for number, page in enumerate(pages):
+    books_info = list(chunked(books, 20))
+    for number, books_on_page in enumerate(books_info):
         rendered_page = template.render(
-            books=page,
-            pages=len(pages),
+            books=books_on_page,
+            pages=len(books_info),
             current_page=number,
         )
         with open(f"pages/index{number}.html", "w", encoding="utf8") as file:
