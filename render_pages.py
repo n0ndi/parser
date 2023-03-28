@@ -20,7 +20,8 @@ def render_pages():
 
     with open(json_path, "r") as file:
         books = json.load(file)
-    books_info = list(chunked(books, 20))
+    books_quantity = 20
+    books_info = list(chunked(books, books_quantity))
     for number, books_on_page in enumerate(books_info):
         rendered_page = template.render(
             books=books_on_page,
