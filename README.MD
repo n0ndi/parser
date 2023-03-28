@@ -48,14 +48,15 @@
 ```
 python main.py --start_page 10 --end_page 20
 ```
+
 ### Запуск оффлаин библиотеки
 
 Для запуска сервера запустите run_server.py, и зайдите на этот [сайт](http://127.0.0.1:5500/pages/index0.html):
 
+
 ```
 python run_server.py
 ```
-
 
 ### Цель проекта
 
