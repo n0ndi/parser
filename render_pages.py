@@ -19,9 +19,9 @@ def render_pages():
     template = env.get_template("template.html")
 
     with open(json_path, "r") as file:
-        books_info = json.load(file)
+        books_descriptions = json.load(file)
     books_cards_quantity = 20
-    book_descriptions_by_pages = list(chunked(books_info, books_cards_quantity))
+    book_descriptions_by_pages = list(chunked(books_descriptions, books_cards_quantity))
     for number, books_on_page in enumerate(book_descriptions_by_pages):
         rendered_page = template.render(
             books=books_on_page,
